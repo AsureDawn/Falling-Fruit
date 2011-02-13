@@ -1,0 +1,50 @@
+Falling Fruit is a game which, to some degree, resembles
+"Bird & Beans" (DSiWare).
+
+Contents:
+
+ 1.) Controls (Movement, etc.)
+ 2.) Features
+ 3.) Bugs
+ 4.) Links
+
+
+1.) Controls
+
+Movement is pretty simple:
+Left/Right:	Move left and right
+Spacebar:	Shoot
+Escape:		Quit
+
+
+2.) Features
+
+So far, I have it pretty well complete (feature-wise). The
+Fruit fall, the Frog (I haven't named him yet) moves, and you
+can shoot the fruit. I haven't added a scoring system yet, and
+there's no menu or configuration options either.
+
+
+3.) Bugs
+
+There are lots of bugs: The fruit sometimes disappear before
+reaching the ground, when you shoot there is a pause (on purpose,
+for now), the line representing the frog's tongue isn't drawn
+(or is drawn but covered by the background), etc..
+
+If you would like to help fix bugs, checkout the source with git, perform
+your modifications, create a patch using git-diff, and send it over. I'll
+check to see if it works, and apply it if it does. If you'd like to be
+recognized for your contribution, be sure to send me a name and
+(optionally) e-mail address with the patch.
+
+If you've found a bug, but don't know how to fix it or don't have time,
+create an issue[1] at the github issues page, and I'll see if I can fix it.
+Be sure to include as much detail as possible (any error messages, and
+steps to reproduce would be helpful).
+
+
+4.) Links
+
+[0] https://github.com/AsureDawn/Falling-Fruit
+[1] https://github.com/AsureDawn/Falling-Fruit/issues

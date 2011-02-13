@@ -1,0 +1,4 @@
+To run Falling Fruit, you need the following software installed:
+
+ * Python 3.x	(>= 3.1.2 Tested; 3.0 or 2.7 may work)
+ * pygame	(>= 1.9.1 Tested)
