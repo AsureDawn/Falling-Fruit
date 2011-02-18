@@ -104,6 +104,7 @@ class Frog(pygame.sprite.Sprite):
         self.image = frog_image
         self.rect = self.image.get_rect()
         self.xpos = round(WINDOWWIDTH / 2)
+        self.xrange = []
         self.flipped = False
         self.shooting = False
         self.rect.move_ip(self.xpos, WINDOWHEIGHT -
@@ -121,7 +122,7 @@ class Frog(pygame.sprite.Sprite):
                                 print('Fruit shot!')
                                 fruit.kill()
                                 fruitstand['score'] += 100
-                                return
+                                self.shooting = False
                 else:
                     if WINDOWHEIGHT - xpos - self.image.get_height() > WINDOWHEIGHT:
                         return
@@ -131,11 +132,19 @@ class Frog(pygame.sprite.Sprite):
                                 print('Fruit shot!')
                                 fruit.kill()
                                 fruitstand['score'] += 100
-                                return
+                                self.shooting = False
             else:
                 firingrange.blit(background, (0, 0))
                 break
+            self.xrange = list(range(xpos))
+            self.xrange.reverse()
             sleep(.003)
+        for retxpos in self.xrange:
+            sleep(.001)
+            if self.flipped is False:
+                pygame.draw.line(firingrange, (255, 50, 50), (self.xpos + self.image.get_height(), WINDOWHEIGHT - self.image.get_height()), (retxpos + self.image.get_height(), WINDOWHEIGHT + self.xpos - retxpos - self.image.get_height()), 2)
+            else:
+                pygame.draw.line(firingrange, (255, 50, 50), (self.xpos, WINDOWHEIGHT - self.image.get_height()), (self.xpos - retxpos, WINDOWHEIGHT - retxpos - self.image.get_height()), 2)
 
     def update(self, direction=None, shoot=None):
         """Move frog left or right, or make him shoot"""
