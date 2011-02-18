@@ -110,29 +110,32 @@ class Frog(pygame.sprite.Sprite):
                                      self.image.get_height())
 
     def _shoot(self):
-        for i in range(WINDOWHEIGHT):
+        for xpos in range(WINDOWWIDTH):
             if self.shooting is True:
                 if self.flipped is False:
-                    pygame.draw.line(firingrange, 0, (50,0), (50,WINDOWHEIGHT), 3)
-                    sleep(.003)
+                    if xpos - self.xpos > WINDOWHEIGHT:
+                        return
+                    pygame.draw.line(firingrange, (255, 50, 50), (self.xpos + self.image.get_height(), WINDOWHEIGHT - self.image.get_height()), (xpos + self.image.get_height(), WINDOWHEIGHT + self.xpos - xpos - self.image.get_height()), 2)
                     for fruit in fruitstand['basket']:
-                        if fruit.rect.collidepoint((i+1,
-                           i+1 * FROGSHOOTSLOPE)):
+                        if fruit.rect.collidepoint((xpos, WINDOWHEIGHT+self.xpos-xpos)):
                                 print('Fruit shot!')
                                 fruit.kill()
+                                fruitstand['score'] += 100
                                 return
                 else:
-                    pygame.draw.line(firingrange, (255, 50, 50), (self.xpos, self.image.get_height()), (i+1, i+1 * FROGSHOOTSLOPE), 3)
-                    sleep(.003)
+                    if WINDOWHEIGHT - xpos - self.image.get_height() > WINDOWHEIGHT:
+                        return
+                    pygame.draw.line(firingrange, (255, 50, 50), (self.xpos, WINDOWHEIGHT - self.image.get_height()), (self.xpos - xpos, WINDOWHEIGHT - xpos - self.image.get_height()), 2)
                     for fruit in fruitstand['basket']:
-                        if fruit.rect.collidepoint((i+1,
-                           i+1 * FROGSHOOTSLOPE)):
+                        if fruit.rect.collidepoint((self.xpos-xpos, WINDOWHEIGHT-xpos-self.image.get_height())):
                                 print('Fruit shot!')
                                 fruit.kill()
+                                fruitstand['score'] += 100
                                 return
             else:
                 firingrange.blit(background, (0, 0))
                 break
+            sleep(.003)
 
     def update(self, direction=None, shoot=None):
         """Move frog left or right, or make him shoot"""
@@ -171,9 +174,10 @@ def main():
     while True:
         with surfaceslock:
             screen.blit(background, (0, 0))
+            screen.blit(firingrange, (0, 0))
             fruitstand['basket'].draw(screen)
             land.draw(screen)
-        pygame.display.flip()
+            pygame.display.flip()
         clock.tick(60)
         fruitfall()
         if frogmoving.is_set() is False:
@@ -215,7 +219,6 @@ def fruitfall():
 
             if fruit.ypos >= WINDOWHEIGHT - FRUITHEIGHT:
                 fruit.kill()
-                fruitstand['score'] += 100
 
 def move(movedir, stopfrog):
     while True:
@@ -255,7 +258,11 @@ def input(events):
                     movefrog.start()
             elif event.key == pygame.K_SPACE:
                 stopfrog.set() # Frog can't move and shoot at once
-                frog.update(shoot=True) # Make frog shoot
+                frog.update(shoot=False) # Frog can't shoot while shooting
+                shootingfrog = threading.Thread(target=frog.update, kwargs={'shoot':True})
+                shootingfrog.daemon = True
+                shootingfrog.start() # Make frog shoot
+                #frog.update(shoot=True) # Make frog shoot
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 stopfrog.set()
