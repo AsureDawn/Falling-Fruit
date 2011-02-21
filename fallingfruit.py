@@ -147,7 +147,6 @@ class Frog(pygame.sprite.Sprite):
         """Paint tongue $distance pixels, left or right,
            depending on $flipped (True = left, False = right)"""
         absypos = WINDOWHEIGHT - self.image.get_height()
-        startpoint = (absxpos, absypos)
         color = (255, 50, 50)
         if flipped is False:
             absxpos = self.xpos + self.image.get_height()
@@ -157,6 +156,7 @@ class Frog(pygame.sprite.Sprite):
             absxpos = self.xpos
             absdist = distance
             endpoint = (absxpos - absdist, absypos - absdist)
+        startpoint = (absxpos, absypos)
 
         pygame.draw.line(firingrange, color, startpoint, endpoint, 2)
 
