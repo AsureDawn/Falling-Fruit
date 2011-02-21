@@ -116,7 +116,7 @@ class Frog(pygame.sprite.Sprite):
                 if self.flipped is False:
                     if xpos - self.xpos > WINDOWHEIGHT:
                         return
-                    pygame.draw.line(firingrange, (255, 50, 50), (self.xpos + self.image.get_height(), WINDOWHEIGHT - self.image.get_height()), (xpos + self.image.get_height(), WINDOWHEIGHT + self.xpos - xpos - self.image.get_height()), 2)
+                    self._paint_tongue(self.flipped, xpos)
                     for fruit in fruitstand['basket']:
                         if fruit.rect.collidepoint((xpos, WINDOWHEIGHT+self.xpos-xpos)):
                                 print('Fruit shot!')
@@ -126,7 +126,7 @@ class Frog(pygame.sprite.Sprite):
                 else:
                     if WINDOWHEIGHT - xpos - self.image.get_height() > WINDOWHEIGHT:
                         return
-                    pygame.draw.line(firingrange, (255, 50, 50), (self.xpos, WINDOWHEIGHT - self.image.get_height()), (self.xpos - xpos, WINDOWHEIGHT - xpos - self.image.get_height()), 2)
+                    self._paint_tongue(self.flipped, xpos)
                     for fruit in fruitstand['basket']:
                         if fruit.rect.collidepoint((self.xpos-xpos, WINDOWHEIGHT-xpos-self.image.get_height())):
                                 print('Fruit shot!')
@@ -141,10 +141,24 @@ class Frog(pygame.sprite.Sprite):
             sleep(.003)
         for retxpos in self.xrange:
             sleep(.001)
-            if self.flipped is False:
-                pygame.draw.line(firingrange, (255, 50, 50), (self.xpos + self.image.get_height(), WINDOWHEIGHT - self.image.get_height()), (retxpos + self.image.get_height(), WINDOWHEIGHT + self.xpos - retxpos - self.image.get_height()), 2)
-            else:
-                pygame.draw.line(firingrange, (255, 50, 50), (self.xpos, WINDOWHEIGHT - self.image.get_height()), (self.xpos - retxpos, WINDOWHEIGHT - retxpos - self.image.get_height()), 2)
+            self._paint_tongue(self.flipped, retxpos)
+
+    def _paint_tongue(self, flipped, distance):
+        """Paint tongue $distance pixels, left or right,
+           depending on $flipped (True = left, False = right)"""
+        absypos = WINDOWHEIGHT - self.image.get_height()
+        startpoint = (absxpos, absypos)
+        color = (255, 50, 50)
+        if flipped is False:
+            absxpos = self.xpos + self.image.get_height()
+            absdist = distance - self.image.get_height()
+            endpoint = (absxpos + absdist, absypos - absdist)
+        else:
+            absxpos = self.xpos
+            absdist = distance
+            endpoint = (absxpos - absdist, absypos - absdist)
+
+        pygame.draw.line(firingrange, color, startpoint, endpoint, 2)
 
     def update(self, direction=None, shoot=None):
         """Move frog left or right, or make him shoot"""
