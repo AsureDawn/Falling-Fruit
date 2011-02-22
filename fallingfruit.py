@@ -111,28 +111,17 @@ class Frog(pygame.sprite.Sprite):
                                      self.image.get_height())
 
     def _shoot(self):
-        for xpos in range(WINDOWWIDTH):
+        if self.flipped is False:
+            xrange = WINDOWWIDTH - self.xpos - self.image.get_height()
+        else:
+            xrange = WINDOWWIDTH - self.xpos
+            xrange = WINDOWWIDTH - xrange
+        for xpos in range(xrange):
             if self.shooting is True:
-                if self.flipped is False:
-                    if xpos - self.xpos > WINDOWHEIGHT:
-                        return
-                    self._paint_tongue(self.flipped, xpos)
-                    for fruit in fruitstand['basket']:
-                        if fruit.rect.collidepoint((xpos, WINDOWHEIGHT+self.xpos-xpos)):
-                                print('Fruit shot!')
-                                fruit.kill()
-                                fruitstand['score'] += 100
-                                self.shooting = False
-                else:
-                    if WINDOWHEIGHT - xpos - self.image.get_height() > WINDOWHEIGHT:
-                        return
-                    self._paint_tongue(self.flipped, xpos)
-                    for fruit in fruitstand['basket']:
-                        if fruit.rect.collidepoint((self.xpos-xpos, WINDOWHEIGHT-xpos-self.image.get_height())):
-                                print('Fruit shot!')
-                                fruit.kill()
-                                fruitstand['score'] += 100
-                                self.shooting = False
+                if xpos + self.image.get_height() >= WINDOWHEIGHT:
+                    break
+                self._paint_tongue(self.flipped, xpos)
+                self._collide_tongue(self.flipped, xpos)
             else:
                 firingrange.blit(background, (0, 0))
                 break
@@ -142,6 +131,21 @@ class Frog(pygame.sprite.Sprite):
         for retxpos in self.xrange:
             sleep(.001)
             self._paint_tongue(self.flipped, retxpos)
+
+    def _collide_tongue(self, flipped, distance):
+        """Determines whether tongue collides with fruit at
+           $distance, left or right, depending on $flipped"""
+        ycollide = WINDOWHEIGHT - distance
+        if flipped is False:
+            xcollide = self.xpos + distance
+        else:
+            xcollide = self.xpos - distance
+        for fruit in fruitstand['basket']:
+            if fruit.rect.collidepoint(xcollide, ycollide):
+                print('Fruit shot!')
+                fruit.kill()
+                fruitstand['score'] += 100
+                self.shooting = False
 
     def _paint_tongue(self, flipped, distance):
         """Paint tongue $distance pixels, left or right,
