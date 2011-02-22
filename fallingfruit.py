@@ -121,7 +121,8 @@ class Frog(pygame.sprite.Sprite):
                 if xpos + self.image.get_height() >= WINDOWHEIGHT:
                     break
                 self._paint_tongue(self.flipped, xpos)
-                self._collide_tongue(self.flipped, xpos)
+                if self._collide_tongue(self.flipped, xpos) is True:
+                    break
             else:
                 firingrange.blit(background, (0, 0))
                 break
@@ -131,11 +132,12 @@ class Frog(pygame.sprite.Sprite):
         for retxpos in self.xrange:
             sleep(.001)
             self._paint_tongue(self.flipped, retxpos)
+        self.shooting = False
 
     def _collide_tongue(self, flipped, distance):
         """Determines whether tongue collides with fruit at
            $distance, left or right, depending on $flipped"""
-        ycollide = WINDOWHEIGHT - distance - self.image.get_height()
+        ycollide = WINDOWHEIGHT - distance - self.rect[3]
         if flipped is False:
             xcollide = self.xpos + distance
         else:
@@ -145,16 +147,17 @@ class Frog(pygame.sprite.Sprite):
                 print('Fruit shot!')
                 fruit.kill()
                 fruitstand['score'] += 100
-                self.shooting = False
+                return True
+        return False
 
     def _paint_tongue(self, flipped, distance):
         """Paint tongue $distance pixels, left or right,
            depending on $flipped (True = left, False = right)"""
-        absypos = WINDOWHEIGHT - self.image.get_height()
+        absypos = WINDOWHEIGHT - self.rect[3]
         color = (255, 50, 50)
         if flipped is False:
-            absxpos = self.xpos + self.image.get_height()
-            absdist = distance - self.image.get_height()
+            absxpos = self.xpos + self.rect[2]
+            absdist = distance - self.rect[2]
             endpoint = (absxpos + absdist, absypos - absdist)
         else:
             absxpos = self.xpos
@@ -247,7 +250,9 @@ def fruitfall():
             if fruit.ypos >= WINDOWHEIGHT - FRUITHEIGHT:
                 fruit.kill()
 
-def move(movedir, stopfrog):
+def _move(movedir, stopfrog):
+    while frog.shooting is True:
+        pass
     while True:
         if stopfrog.is_set() is True:
             break
@@ -258,6 +263,12 @@ def move(movedir, stopfrog):
             sleep(1 / (1.6 ** 11))
     frogmoving.clear()
     stopfrog.clear()
+
+def move(movedir, stopfrog):
+    frogmoving.set()
+    movefrog = threading.Thread(target=_move, args=(movedir, stopfrog,))
+    movefrog.daemon = True
+    movefrog.start()
 
 stopfrog = threading.Event()
 frogmoving = threading.Event()
@@ -271,25 +282,19 @@ def input(events):
               event.key == pygame.K_ESCAPE)):
                   fruitstand['exit'] = True
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                if frogmoving.is_set() is False:
-                    frogmoving.set()
-                    movefrog = threading.Thread(target=move, args=(MOVELEFT, stopfrog,))
-                    movefrog.daemon = True
-                    movefrog.start()
-            elif event.key == pygame.K_RIGHT:
-                if frogmoving.is_set() is False:
-                    movefrog = threading.Thread(target=move, args=(MOVERIGHT, stopfrog,))
-                    movefrog.daemon = True
-                    frogmoving.set()
-                    movefrog.start()
+            if (event.key == pygame.K_LEFT or
+                event.key == pygame.K_RIGHT):
+                    if event.key == pygame.K_LEFT:
+                        direction = MOVELEFT
+                    else:
+                        direction = MOVERIGHT
+                    move(direction, stopfrog)
             elif event.key == pygame.K_SPACE:
                 stopfrog.set() # Frog can't move and shoot at once
                 frog.update(shoot=False) # Frog can't shoot while shooting
                 shootingfrog = threading.Thread(target=frog.update, kwargs={'shoot':True})
                 shootingfrog.daemon = True
                 shootingfrog.start() # Make frog shoot
-                #frog.update(shoot=True) # Make frog shoot
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 stopfrog.set()
@@ -297,6 +302,16 @@ def input(events):
                 stopfrog.set()
             elif event.key == pygame.K_SPACE:
                 frog.update(shoot=False)
+                pressedkeys = pygame.key.get_pressed()
+                if (pressedkeys[pygame.K_LEFT] is True or
+                    pressedkeys[pygame.K_RIGHT] is True):
+                        if pressedkeys[pygame.K_LEFT] is True:
+                            direction = MOVELEFT
+                        elif pressedkeys[pygame.K_RIGHT] is True:
+                            direction = MOVERIGHT
+                        stopfrog.clear()
+                        move(direction, stopfrog)
+                        
         #else:
         #    print('%s ' % (event.type))
 
