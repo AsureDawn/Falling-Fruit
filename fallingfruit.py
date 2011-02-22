@@ -135,7 +135,7 @@ class Frog(pygame.sprite.Sprite):
     def _collide_tongue(self, flipped, distance):
         """Determines whether tongue collides with fruit at
            $distance, left or right, depending on $flipped"""
-        ycollide = WINDOWHEIGHT - distance
+        ycollide = WINDOWHEIGHT - distance - self.image.get_height()
         if flipped is False:
             xcollide = self.xpos + distance
         else:
