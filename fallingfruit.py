@@ -26,7 +26,7 @@ surfaceslock = threading.Lock()
 #  stats are altered accordingly.
 levels = []
 levels.append(({'maxfruit' : 5,  'mintime'  : 1,
-                'maxtime'  : 5, 'nextlevel': 10 ** 3,
+                'maxtime'  : 5,  'nextlevel': 10 ** 3,
                 'speed' : 1}))
 levels.append(({'maxfruit' : 6,  'mintime'  : 1,
                 'maxtime'  : 4,  'nextlevel': 3 * 10 ** 3,
@@ -107,8 +107,7 @@ class Frog(pygame.sprite.Sprite):
         self.xrange = []
         self.flipped = False
         self.shooting = False
-        self.rect.move_ip(self.xpos, WINDOWHEIGHT -
-                                     self.image.get_height())
+        self.rect.move_ip(self.xpos, WINDOWHEIGHT - self.image.get_height())
 
     def _shoot(self):
         if self.flipped is False:
@@ -173,7 +172,8 @@ class Frog(pygame.sprite.Sprite):
             if direction is MOVELEFT:
                 if self.flipped is False:
                     with surfaceslock:
-                        self.image = pygame.transform.flip(self.image, True, False)
+                        self.image = pygame.transform.flip(self.image,
+                                                           True, False)
                     self.flipped = True
                 if self.xpos > 0:
                     self.xpos -= 1
@@ -181,7 +181,8 @@ class Frog(pygame.sprite.Sprite):
             elif direction is MOVERIGHT:
                 if self.flipped is True:
                     with surfaceslock:
-                        self.image = pygame.transform.flip(self.image, True, False)
+                        self.image = pygame.transform.flip(self.image,
+                                                           True, False)
                     self.flipped = False
                 if self.xpos < WINDOWWIDTH - self.rect[2]:
                     self.xpos += 1
@@ -232,20 +233,18 @@ def addfruit(Fruit):
                       levels[fruitstand['level']]['maxtime']) / 4)
         if numfruit < levels[fruitstand['level']]['maxfruit']:
             # Add another fruit if there aren't too many
-            fruitstand['basket'].add(Fruit(randint(1, WINDOWWIDTH - 24), randint(1, 3)))
+            fruitstand['basket'].add(Fruit(
+                randint(1, WINDOWWIDTH - 24), randint(1, 3)))
 
 def fruitfall():
-    """Drops fruit by amount depending on the rate
-       of fall and level.
-       """
+    """Drops fruit by amount depending on the rate of fall and level."""
     cycleit = cycle.__next__()
     #print(fruitstand['basket'].sprites)
 
     for fruit in fruitstand['basket']:
         if fruit.rof <= cycleit:
             # The fruits are falling!
-            fruit.update(fruit.rof *
-                         levels[fruitstand['level']]['speed'])
+            fruit.update(fruit.rof * levels[fruitstand['level']]['speed'])
 
             if fruit.ypos >= WINDOWHEIGHT - FRUITHEIGHT:
                 fruit.kill()
@@ -292,7 +291,8 @@ def input(events):
             elif event.key == pygame.K_SPACE:
                 stopfrog.set() # Frog can't move and shoot at once
                 frog.update(shoot=False) # Frog can't shoot while shooting
-                shootingfrog = threading.Thread(target=frog.update, kwargs={'shoot':True})
+                shootingfrog = threading.Thread(target=frog.update,
+                                                kwargs={'shoot':True})
                 shootingfrog.daemon = True
                 shootingfrog.start() # Make frog shoot
         elif event.type == pygame.KEYUP:
